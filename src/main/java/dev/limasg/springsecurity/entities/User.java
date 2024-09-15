@@ -3,6 +3,9 @@ package dev.limasg.springsecurity.entities;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import dev.limasg.springsecurity.controller.dto.LoginRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,20 +29,17 @@ public class User {
 
     @Column(unique = true)
     private String username;
-
     private String password;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
-        name = "tb_users_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
+            name = "tb_users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
 
-    /**
-     * @return UUID return the userId
-     */
+
     public UUID getUserId() {
         return userId;
     }
@@ -48,49 +48,31 @@ public class User {
         this.userId = userId;
     }
 
-    
     public String getUsername() {
         return username;
     }
-
 
     public void setUsername(String username) {
         this.username = username;
     }
 
-
     public String getPassword() {
         return password;
     }
 
- 
     public void setPassword(String password) {
         this.password = password;
     }
-
 
     public Set<Role> getRoles() {
         return roles;
     }
 
-
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
-    public enum Values {
-        ADMIN(1L),
-        BASIC(2L);
-
-        long roleId;
-
-        Values(long roleId){
-            this.roleId = roleId;
-        }
-        public long getRoleId(){
-            return roleId;
-        }
+    public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.matches(loginRequest.password(), this.password);
     }
-
-
 }
